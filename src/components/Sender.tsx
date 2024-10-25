@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 
 export const Sender = () => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [pc, setPC] = useState<RTCPeerConnection | null>(null);
 
     useEffect(() => {
