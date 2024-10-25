@@ -2,8 +2,7 @@ import { useEffect, useState } from "react"
 
 export const Sender = () => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [pc, setPC] = useState<RTCPeerConnection | null>(null);
+
 
     useEffect(() => {
         const socket = new WebSocket('ws://68.183.81.222:4001');
@@ -23,7 +22,7 @@ export const Sender = () => {
         }
 
         const pc = new RTCPeerConnection();
-        setPC(pc);
+
 
         pc.onnegotiationneeded = async () => {
             const offer = await pc.createOffer();
