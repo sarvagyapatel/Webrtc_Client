@@ -1,18 +1,26 @@
-
-import { createRoot } from 'react-dom/client'
+import ReactDOM from "react-dom/client";
 import './index.css'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import {createBrowserRouter, RouterProvider} from 'react-router-dom'
 import {Sender} from './components/Sender'
 import {Reciever} from './components/Reciever'
 import App from './App'
 
 
-createRoot(document.getElementById('root')!).render(
-  <BrowserRouter>
-  <Routes>
-    <Route path='/' element={<App />}/>
-    <Route path="/sender" element={<Sender />} />
-    <Route path="/receiver" element={<Reciever />} />
-  </Routes>
-</BrowserRouter>
-)
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
+  {
+    path:"/sender",
+    element: <Sender />
+  },
+  {
+    path: "/receiver",
+    element: <Reciever />
+  }
+]);
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <RouterProvider router={router} />
+);
