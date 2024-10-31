@@ -2,10 +2,10 @@ import { useEffect, useState } from "react"
 
 export const Sender = () => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
-    const [pc, setPC] = useState<RTCPeerConnection | null>(null);
+
 
     useEffect(() => {
-        const socket = new WebSocket('ws://localhost:8080');
+        const socket = new WebSocket('ws://68.183.81.222:4001');
         setSocket(socket);
         socket.onopen = () => {
             socket.send(JSON.stringify({
@@ -22,7 +22,6 @@ export const Sender = () => {
         }
 
         const pc = new RTCPeerConnection();
-        setPC(pc);
 
         pc.onnegotiationneeded = async () => {
             const offer = await pc.createOffer();
