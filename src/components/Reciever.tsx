@@ -3,7 +3,7 @@ import { useEffect } from "react"
 export const Reciever = () => {
     
     useEffect(() => {
-        const socket = new WebSocket('ws://68.183.81.222:4001');
+        const socket = new WebSocket('/ws');
         socket.onopen = () => {
             socket.send(JSON.stringify({
                 type: 'receiver'

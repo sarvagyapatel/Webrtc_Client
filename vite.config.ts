@@ -1,7 +1,12 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-})
+export default {
+  server: {
+    proxy: {
+      '/ws': {
+        target: 'ws://68.183.81.222:4001', // your local WebSocket server
+        ws: true,
+      },
+    },
+  },
+};
+

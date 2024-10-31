@@ -5,7 +5,7 @@ export const Sender = () => {
 
 
     useEffect(() => {
-        const socket = new WebSocket('ws://68.183.81.222:4001');
+        const socket = new WebSocket('/ws');
         setSocket(socket);
         socket.onopen = () => {
             socket.send(JSON.stringify({
