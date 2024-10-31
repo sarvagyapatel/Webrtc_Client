@@ -10,15 +10,17 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    children: [
+      {
+        path:"/sender",
+        element: <Sender />
+      },
+      {
+        path: "/receiver",
+        element: <Reciever />
+      }
+    ],
   },
-  {
-    path:"/sender",
-    element: <Sender />
-  },
-  {
-    path: "/receiver",
-    element: <Reciever />
-  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
