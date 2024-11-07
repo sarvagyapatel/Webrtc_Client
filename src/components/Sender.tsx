@@ -5,7 +5,7 @@ export const Sender = () => {
 
 
     useEffect(() => {
-        const socket = new WebSocket('/ws');
+        const socket = new WebSocket('wss://www.vps.sarvagyapatel.in/socket');
         setSocket(socket);
         socket.onopen = () => {
             socket.send(JSON.stringify({
