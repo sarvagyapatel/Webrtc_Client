@@ -44,6 +44,6 @@ export const Reciever = () => {
     }
 
     return <div>
-
+       <button className="w-38 h-8">recieve</button>
     </div>
 }
