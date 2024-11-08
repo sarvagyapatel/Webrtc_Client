@@ -44,6 +44,6 @@ export const Reciever = () => {
     }
 
     return <div>
-       <button className="w-38 h-8">recieve</button>
+       <button className="w-36 h-10 bg-slate-600">recieve</button>
     </div>
 }
