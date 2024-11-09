@@ -1,6 +1,5 @@
-import { Reciever } from "./components/Reciever"
-import { Sender } from "./components/Sender"
-
+import Reciever from "./components/Reciever"
+import Sender from "./components/Sender"
 
 function Home() {
   return (
