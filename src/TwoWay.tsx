@@ -12,7 +12,12 @@ function TwoWay() {
     // Configure RTCPeerConnection with STUN server
     const pc = new RTCPeerConnection({
         iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' }  // Google STUN server
+            { urls: 'stun:stun.l.google.com:19302' },
+            {
+                urls: ["turn:68.183.81.222:3478", "turn:www.vps.sarvagyapatel.in:3478"],
+                username: "user", 
+                credential: "Ayushsingh$12"
+            }
         ]
     });
 
