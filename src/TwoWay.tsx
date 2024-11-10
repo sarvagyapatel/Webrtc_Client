@@ -9,7 +9,7 @@ function TwoWay() {
     const videoContainerRefReceive = useRef<HTMLDivElement>(null);
     const [akg, setAkg] = useState<string>("connect");
 
-    // Configure RTCPeerConnection with STUN server
+    // Configure RTCPeerConnection with STUN and TURN servers
     const pc = new RTCPeerConnection({
         iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
@@ -79,7 +79,8 @@ function TwoWay() {
             }
         };
 
-        navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+        // Capture both video and audio from the user's media devices
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
             const video = document.createElement('video');
             video.srcObject = stream;
             video.play();
@@ -88,6 +89,7 @@ function TwoWay() {
                 videoContainerRefSend.current.appendChild(video);
             }
 
+            // Add all tracks (audio and video) to the RTCPeerConnection
             stream.getTracks().forEach(track => pc.addTrack(track, stream));
         });
     };
@@ -135,7 +137,6 @@ function TwoWay() {
         const video = document.createElement("video");
         video.setAttribute("autoplay", "true");
         video.setAttribute("playsinline", "true");
-        video.setAttribute("muted", "true");
 
         if (videoContainerRefReceive.current) {
             videoContainerRefReceive.current.appendChild(video);
@@ -143,8 +144,11 @@ function TwoWay() {
 
         pc.ontrack = (event) => {
             const stream = new MediaStream([event.track]);
-            video.srcObject = stream;
-            video.play();
+
+            // Assign the received media stream (video and audio) to the video element
+            if (event.track.kind === "video") {
+                video.srcObject = stream;
+            }
         };
     };
 
