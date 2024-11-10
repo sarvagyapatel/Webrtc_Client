@@ -8,7 +8,7 @@ import Reciever from "./components/Reciever";
 
 const router = createBrowserRouter([
   {
-    path: "/home",
+    path: "/",
     element: <Home />
   },
   {
