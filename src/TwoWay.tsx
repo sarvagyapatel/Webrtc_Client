@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 
 function TwoWay() {
-
     const [receiverId, setReceiverId] = useState<string>("");
     const [senderId, setSenderId] = useState("");
     const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -83,6 +82,7 @@ function TwoWay() {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
             const video = document.createElement('video');
             video.srcObject = stream;
+            video.muted = true;
             video.play();
 
             if (videoContainerRefSend.current) {
@@ -134,21 +134,21 @@ function TwoWay() {
             }
         };
 
+        // Create a video element for video and audio playback
         const video = document.createElement("video");
         video.setAttribute("autoplay", "true");
         video.setAttribute("playsinline", "true");
+        video.setAttribute("muted", "false"); // Allow audio playback
 
         if (videoContainerRefReceive.current) {
             videoContainerRefReceive.current.appendChild(video);
         }
 
+        // Collect all incoming media tracks into a single MediaStream for playback
+        const remoteStream = new MediaStream();
         pc.ontrack = (event) => {
-            const stream = new MediaStream([event.track]);
-
-            // Assign the received media stream (video and audio) to the video element
-            if (event.track.kind === "video") {
-                video.srcObject = stream;
-            }
+            remoteStream.addTrack(event.track);
+            video.srcObject = remoteStream;
         };
     };
 
