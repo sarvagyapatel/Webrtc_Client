@@ -9,8 +9,12 @@ function TwoWay() {
     const videoContainerRefReceive = useRef<HTMLDivElement>(null);
     const [akg, setAkg] = useState<string>("connect");
 
-    const pc = new RTCPeerConnection();
-
+    // Configure RTCPeerConnection with STUN server
+    const pc = new RTCPeerConnection({
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' }  // Google STUN server
+        ]
+    });
 
     const connect = async () => {
         if (!senderId) {
@@ -19,7 +23,6 @@ function TwoWay() {
         }
 
         const socketInstance = new WebSocket(`wss://www.vps.sarvagyapatel.in/ws?clientId=${senderId}`);
-
         setSocket(socketInstance);
 
         socketInstance.onerror = (error) => {
@@ -29,9 +32,7 @@ function TwoWay() {
         setAkg("connected");
     };
 
-
     const sendVideo = async () => {
-
         if (!socket) {
             alert("Socket not found");
             return;
@@ -51,7 +52,7 @@ function TwoWay() {
                 type: 'createOffer',
                 sdp: pc.localDescription
             }));
-        }
+        };
 
         pc.onicecandidate = (event) => {
             if (event.candidate) {
@@ -62,7 +63,7 @@ function TwoWay() {
                     candidate: event.candidate
                 }));
             }
-        }
+        };
 
         socket.onmessage = async (event) => {
             const message = JSON.parse(event.data);
@@ -71,30 +72,22 @@ function TwoWay() {
             } else if (message.type === 'iceCandidate') {
                 pc.addIceCandidate(message.candidate);
             }
-        }
-
-
+        };
 
         navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
             const video = document.createElement('video');
             video.srcObject = stream;
             video.play();
-            // this is wrong, should propogate via a component
+
             if (videoContainerRefSend.current) {
                 videoContainerRefSend.current.appendChild(video);
             }
 
-            pc?.addTrack(stream.getTracks()[0])
-            console.log(stream)
-
+            stream.getTracks().forEach(track => pc.addTrack(track, stream));
         });
-
-
-    }
-
+    };
 
     const receiveVideo = async () => {
-
         if (!socket) {
             alert("Socket not found");
             return;
@@ -110,13 +103,10 @@ function TwoWay() {
 
             if (message.type === 'createOffer') {
                 try {
-                    // Await setRemoteDescription to ensure the offer SDP is applied before creating an answer
                     await pc.setRemoteDescription(message.sdp);
-
                     const answer = await pc.createAnswer();
-                    await pc.setLocalDescription(answer); // Awaiting to ensure that LocalDescription is set
+                    await pc.setLocalDescription(answer);
 
-                    // Send the answer SDP to the sender
                     socket.send(JSON.stringify({
                         target: receiverId,
                         owner: 'receiver',
@@ -129,7 +119,6 @@ function TwoWay() {
             } else if (message.type === 'iceCandidate') {
                 try {
                     if (message.candidate) {
-                        console.log(message.candidate)
                         await pc.addIceCandidate(message.candidate);
                     }
                 } catch (error) {
@@ -138,34 +127,21 @@ function TwoWay() {
             }
         };
 
-
-        const video = document.createElement("video") as HTMLVideoElement;
+        const video = document.createElement("video");
         video.setAttribute("autoplay", "true");
-        video.setAttribute("playsinline", "true"); // Ensures it works on mobile devices without fullscreen
-        video.setAttribute("muted", "true"); // Optional, mute the video if needed
+        video.setAttribute("playsinline", "true");
+        video.setAttribute("muted", "true");
 
-        // Append the video element to the div referenced by videoContainerRef
         if (videoContainerRefReceive.current) {
             videoContainerRefReceive.current.appendChild(video);
         }
 
-        // Define the type of the incoming event object for ontrack
-        const onTrackHandler = (event: RTCTrackEvent): void => {
-            // Ensure that the track is available and attach it to the video element
-            const obj = new MediaStream([event.track]);
-            video.srcObject = obj;
+        pc.ontrack = (event) => {
+            const stream = new MediaStream([event.track]);
+            video.srcObject = stream;
             video.play();
         };
-
-        // Example: Assign the ontrack handler to the WebRTC PeerConnection
-        pc.ontrack = onTrackHandler;
-
-
-    }
-
-
-
-
+    };
 
     return (
         <div className="flex flex-wrap gap-36 p-20">
@@ -182,7 +158,6 @@ function TwoWay() {
                                 setSenderId(e.target.value);
                             }}
                         />
-
                     </div>
 
                     <input
@@ -203,9 +178,7 @@ function TwoWay() {
                     </button>
                 </div>
 
-                <div className="w-full h-fit text-gray-950" ref={videoContainerRefSend}>
-
-                </div>
+                <div className="w-full h-fit text-gray-950" ref={videoContainerRefSend}></div>
 
                 <div className="flex">
                     <button
@@ -217,9 +190,7 @@ function TwoWay() {
                 </div>
             </div>
             <div className="flex flex-col gap-36 border-black border-2 p-10 rounded-2xl justify-end">
-                <div className="w-full h-fit text-gray-950" ref={videoContainerRefReceive}>
-
-                </div>
+                <div className="w-full h-fit text-gray-950" ref={videoContainerRefReceive}></div>
 
                 <div className="flex">
                     <button
@@ -231,7 +202,7 @@ function TwoWay() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
-export default TwoWay
+export default TwoWay;
