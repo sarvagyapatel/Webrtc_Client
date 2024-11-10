@@ -157,38 +157,39 @@ function TwoWay() {
 
 
     return (
-        <div className="flex flex-row gap-36">
-            <div className="flex flex-col gap-36 border-black">
+        <div className="flex flex-wrap gap-36 p-20">
+            <div className="flex flex-col gap-36 border-black border-2 p-10 rounded-2xl">
                 <div className="flex flex-row gap-10">
                     <div>
                         <input
                             type="text"
                             name="sender_name"
                             placeholder="sender name"
-                            className="w-28 border-blue-600"
+                            className="w-28 border-blue-600 border-2 p-2 rounded-2xl"
                             onChange={(e) => {
                                 e.preventDefault();
                                 setSenderId(e.target.value);
                             }}
                         />
-                        <button
-                            onClick={() => connect()}
-                            className="w-36 bg-orange-600 border-orange-500 rounded-2xl"
-                        >
-                            {akg}
-                        </button>
+
                     </div>
 
                     <input
                         type="text"
                         name="receiver_name"
                         placeholder="receiver name"
-                        className="w-28 border-blue-600"
+                        className="w-28 border-blue-600 border-2 p-2 rounded-2xl"
                         onChange={(e) => {
                             e.preventDefault();
                             setReceiverId(e.target.value);
                         }}
                     />
+                    <button
+                        onClick={() => connect()}
+                        className="w-36 bg-orange-600 border-orange-500 rounded-2xl"
+                    >
+                        {akg}
+                    </button>
                 </div>
 
                 <div className="w-full h-fit text-gray-950" ref={videoContainerRefSend}>
@@ -198,13 +199,13 @@ function TwoWay() {
                 <div className="flex">
                     <button
                         onClick={sendVideo}
-                        className="w-36 bg-blue-600 border-blue-500 rounded-2xl"
+                        className="w-36 bg-blue-600 border-blue-500 rounded-2xl p-2"
                     >
                         Send Data
                     </button>
                 </div>
             </div>
-            <div className="flex flex-col gap-36 border-black">
+            <div className="flex flex-col gap-36 border-black border-2 p-10 rounded-2xl">
                 <div className="w-full h-fit text-gray-950" ref={videoContainerRefReceive}>
 
                 </div>
@@ -212,7 +213,7 @@ function TwoWay() {
                 <div className="flex">
                     <button
                         onClick={receiveVideo}
-                        className="w-36 bg-blue-600 border-blue-500 rounded-2xl"
+                        className="w-36 bg-blue-600 border-blue-500 rounded-2xl p-2"
                     >
                         Receive Data
                     </button>

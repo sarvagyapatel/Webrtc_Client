@@ -3,7 +3,7 @@ import TwoWay from "./TwoWay"
 
 function Home() {
   return (
-    <div className="flex flex-wrap w-full h-screen">
+    <div className="flex flex-wrap w-full h-fit justify-center">
         <TwoWay />
     </div>
   )
