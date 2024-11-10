@@ -9,6 +9,8 @@ function TwoWay() {
     const videoContainerRefReceive = useRef<HTMLDivElement>(null);
     const [akg, setAkg] = useState<string>("connect");
 
+    const pc = new RTCPeerConnection();
+
 
     const connect = async () => {
         if (!senderId) {
@@ -39,8 +41,6 @@ function TwoWay() {
             target: receiverId,
             owner: 'sender'
         }));
-
-        const pc = new RTCPeerConnection();
 
         pc.onnegotiationneeded = async () => {
             const offer = await pc.createOffer();
@@ -105,28 +105,39 @@ function TwoWay() {
             owner: 'receiver'
         }));
 
-        const pc = new RTCPeerConnection();
-
-
-        socket.onmessage = (event) => {
+        socket.onmessage = async (event) => {
             const message = JSON.parse(event.data);
+
             if (message.type === 'createOffer') {
-                pc.setRemoteDescription(message.sdp).then(() => {
-                    pc.createAnswer().then((answer) => {
-                        pc.setLocalDescription(answer);
-                        socket.send(JSON.stringify({
-                            target: receiverId,
-                            owner: 'receiver',
-                            type: 'createAnswer',
-                            sdp: answer
-                        }));
-                    });
-                });
+                try {
+                    // Await setRemoteDescription to ensure the offer SDP is applied before creating an answer
+                    await pc.setRemoteDescription(message.sdp);
+
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer); // Awaiting to ensure that LocalDescription is set
+
+                    // Send the answer SDP to the sender
+                    socket.send(JSON.stringify({
+                        target: receiverId,
+                        owner: 'receiver',
+                        type: 'createAnswer',
+                        sdp: answer
+                    }));
+                } catch (error) {
+                    console.error("Error handling createOffer:", error);
+                }
             } else if (message.type === 'iceCandidate') {
-                console.log(message.candidate)
-                pc.addIceCandidate(message.candidate);
+                try {
+                    if (message.candidate) {
+                        console.log(message.candidate)
+                        await pc.addIceCandidate(message.candidate);
+                    }
+                } catch (error) {
+                    console.error("Error adding ICE candidate:", error);
+                }
             }
-        }
+        };
+
 
         const video = document.createElement("video") as HTMLVideoElement;
         video.setAttribute("autoplay", "true");
