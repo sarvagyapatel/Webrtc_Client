@@ -7,6 +7,7 @@ function TwoWay() {
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const videoContainerRefSend = useRef<HTMLDivElement>(null);
     const videoContainerRefReceive = useRef<HTMLDivElement>(null);
+    const [akg, setAkg] = useState<string>("connect");
 
 
     const connect = async () => {
@@ -21,7 +22,9 @@ function TwoWay() {
 
         socketInstance.onerror = (error) => {
             console.error("WebSocket error:", error);
+            return;
         };
+        setAkg("connected");
     };
 
 
@@ -172,7 +175,7 @@ function TwoWay() {
                             onClick={() => connect()}
                             className="w-36 bg-orange-600 border-orange-500 rounded-2xl"
                         >
-                            Connect
+                            {akg}
                         </button>
                     </div>
 
