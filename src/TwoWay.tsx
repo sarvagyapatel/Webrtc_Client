@@ -158,14 +158,14 @@ function TwoWay() {
 
     return (
         <div className="flex flex-wrap gap-36 p-20">
-            <div className="flex flex-col gap-36 border-black border-2 p-10 rounded-2xl">
-                <div className="flex flex-row gap-10">
+            <div className="flex flex-col gap-36 border-black border-2 p-10 rounded-2xl w-fit">
+                <div className="flex flex-col gap-10">
                     <div>
                         <input
                             type="text"
                             name="sender_name"
                             placeholder="sender name"
-                            className="w-28 border-blue-600 border-2 p-2 rounded-2xl"
+                            className="w-36 border-blue-600 border-2 p-2 rounded-2xl"
                             onChange={(e) => {
                                 e.preventDefault();
                                 setSenderId(e.target.value);
@@ -178,7 +178,7 @@ function TwoWay() {
                         type="text"
                         name="receiver_name"
                         placeholder="receiver name"
-                        className="w-28 border-blue-600 border-2 p-2 rounded-2xl"
+                        className="w-36 border-blue-600 border-2 p-2 rounded-2xl"
                         onChange={(e) => {
                             e.preventDefault();
                             setReceiverId(e.target.value);
@@ -186,7 +186,7 @@ function TwoWay() {
                     />
                     <button
                         onClick={() => connect()}
-                        className="w-36 bg-orange-600 border-orange-500 rounded-2xl"
+                        className="w-36 bg-orange-600 border-orange-500 rounded-2xl p-2"
                     >
                         {akg}
                     </button>
@@ -205,7 +205,7 @@ function TwoWay() {
                     </button>
                 </div>
             </div>
-            <div className="flex flex-col gap-36 border-black border-2 p-10 rounded-2xl">
+            <div className="flex flex-col gap-36 border-black border-2 p-10 rounded-2xl justify-end">
                 <div className="w-full h-fit text-gray-950" ref={videoContainerRefReceive}>
 
                 </div>
