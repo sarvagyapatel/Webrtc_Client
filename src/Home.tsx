@@ -1,11 +1,10 @@
-import Reciever from "./components/Reciever"
-import Sender from "./components/Sender"
+
+import TwoWay from "./TwoWay"
 
 function Home() {
   return (
     <div className="flex flex-wrap w-full h-screen">
-        <Sender />
-        <Reciever />
+        <TwoWay />
     </div>
   )
 }

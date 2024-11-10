@@ -1,66 +1,3 @@
-// import { useEffect } from "react"
-
-// export const Reciever = () => {
-
-//     useEffect(() => {
-//         const socket = new WebSocket('wss://www.vps.sarvagyapatel.in/socket');
-//         socket.onopen = () => {
-//             socket.send(JSON.stringify({
-//                 type: 'receiver'
-//             }));
-//         }
-//         startReceiving(socket);
-//     }, []);
-
-// function startReceiving(socket: WebSocket) {
-//     const video = document.createElement('video');
-//     document.body.appendChild(video);
-//     const pc = new RTCPeerConnection();
-
-
-//     socket.onmessage = (event) => {
-//         const message = JSON.parse(event.data);
-//         if (message.type === 'createOffer') {
-//             pc.setRemoteDescription(message.sdp).then(() => {
-//                 pc.createAnswer().then((answer) => {
-//                     pc.setLocalDescription(answer);
-//                     socket.send(JSON.stringify({
-//                         type: 'createAnswer',
-//                         sdp: answer
-//                     }));
-//                 });
-//             });
-//         } else if (message.type === 'iceCandidate') {
-//             console.log(message.candidate)
-//             pc.addIceCandidate(message.candidate);
-//         }
-//     }
-
-//     pc.ontrack = (event) => {
-//         const obj = new MediaStream([event.track]);;
-//         video.srcObject = obj
-//         video.play();
-//     }
-// }
-
-//     return <div>
-//        <button className="w-36 h-10 bg-slate-600">recieve</button>
-//     </div>
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 import { useRef, useState } from "react";
 
@@ -153,36 +90,36 @@ function Reciever() {
     return (
         <div className="flex flex-col gap-36">
             <div className="flex flex-row gap-10">
-        <div>
-          <input
-            type="text"
-            name="sender_name"
-            placeholder="sender name"
-            className="w-28 border-blue-600"
-            onChange={(e) => {
-              e.preventDefault();
-              setSenderId(e.target.value);
-            }}
-          />
-          <button
-            onClick={() => connect()}
-            className="w-36 bg-orange-600 border-orange-500 rounded-2xl"
-          >
-            Connect
-          </button>
-        </div>
+                <div>
+                    <input
+                        type="text"
+                        name="sender_name"
+                        placeholder="sender name"
+                        className="w-28 border-blue-600"
+                        onChange={(e) => {
+                            e.preventDefault();
+                            setSenderId(e.target.value);
+                        }}
+                    />
+                    <button
+                        onClick={() => connect()}
+                        className="w-36 bg-orange-600 border-orange-500 rounded-2xl"
+                    >
+                        Connect
+                    </button>
+                </div>
 
-        <input
-          type="text"
-          name="receiver_name"
-          placeholder="receiver name"
-          className="w-28 border-blue-600"
-          onChange={(e) => {
-            e.preventDefault();
-            setReceiverId(e.target.value);
-          }}
-        />
-      </div>
+                <input
+                    type="text"
+                    name="receiver_name"
+                    placeholder="receiver name"
+                    className="w-28 border-blue-600"
+                    onChange={(e) => {
+                        e.preventDefault();
+                        setReceiverId(e.target.value);
+                    }}
+                />
+            </div>
 
             <div className="w-full h-fit text-gray-950" ref={videoContainerRef}>
 
