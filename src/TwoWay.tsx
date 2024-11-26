@@ -8,104 +8,25 @@ function TwoWay() {
     const videoContainerRefReceive = useRef<HTMLDivElement>(null);
     const [akg, setAkg] = useState<string>("connect");
 
-    // Configure RTCPeerConnection with STUN and TURN servers
     const pc = new RTCPeerConnection({
         iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
             {
                 urls: ["turn:68.183.81.222:3478", "turn:www.vps.sarvagyapatel.in:3478"],
-                username: "user", 
+                username: "user",
                 credential: "Ayushsingh$12"
             }
         ]
     });
+;
 
-    const connect = async () => {
-        if (!senderId) {
-            console.error("Sender ID is required to connect");
-            return;
-        }
-
-        const socketInstance = new WebSocket(`wss://www.vps.sarvagyapatel.in/ws?clientId=${senderId}`);
-        setSocket(socketInstance);
-
-        socketInstance.onerror = (error) => {
-            console.error("WebSocket error:", error);
-            return;
-        };
-        setAkg("connected");
-    };
-
-    const sendVideo = async () => {
-        if (!socket) {
+    const receiveVideo = async (socketGet: WebSocket | null) => {
+        if (!socketGet) {
             alert("Socket not found");
             return;
         }
 
-        socket.send(JSON.stringify({
-            target: receiverId,
-            owner: 'sender'
-        }));
-
-        pc.onnegotiationneeded = async () => {
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            socket?.send(JSON.stringify({
-                target: receiverId,
-                owner: 'sender',
-                type: 'createOffer',
-                sdp: pc.localDescription
-            }));
-        };
-
-        pc.onicecandidate = (event) => {
-            if (event.candidate) {
-                socket?.send(JSON.stringify({
-                    target: receiverId,
-                    owner: 'sender',
-                    type: 'iceCandidate',
-                    candidate: event.candidate
-                }));
-            }
-        };
-
-        socket.onmessage = async (event) => {
-            const message = JSON.parse(event.data);
-            if (message.type === 'createAnswer') {
-                await pc.setRemoteDescription(message.sdp);
-            } else if (message.type === 'iceCandidate') {
-                pc.addIceCandidate(message.candidate);
-            }
-        };
-
-        // Capture both video and audio from the user's media devices
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-            const video = document.createElement('video');
-            video.srcObject = stream;
-            video.muted = true;
-            video.play();
-
-            if (videoContainerRefSend.current) {
-                videoContainerRefSend.current.appendChild(video);
-            }
-
-            // Add all tracks (audio and video) to the RTCPeerConnection
-            stream.getTracks().forEach(track => pc.addTrack(track, stream));
-        });
-    };
-
-    const receiveVideo = async () => {
-        if (!socket) {
-            alert("Socket not found");
-            return;
-        }
-
-        socket.send(JSON.stringify({
-            target: receiverId,
-            owner: 'receiver'
-        }));
-
-        socket.onmessage = async (event) => {
+        socketGet.onmessage = async (event) => {
             const message = JSON.parse(event.data);
 
             if (message.type === 'createOffer') {
@@ -114,7 +35,7 @@ function TwoWay() {
                     const answer = await pc.createAnswer();
                     await pc.setLocalDescription(answer);
 
-                    socket.send(JSON.stringify({
+                    socketGet.send(JSON.stringify({
                         target: receiverId,
                         owner: 'receiver',
                         type: 'createAnswer',
@@ -134,23 +55,130 @@ function TwoWay() {
             }
         };
 
-        // Create a video element for video and audio playback
+        const remoteStream = new MediaStream();
+        pc.ontrack = (event) => {
+            remoteStream.addTrack(event.track);
+            if(videoContainerRefReceive.current===null) return;
+            const videoElement = videoContainerRefReceive.current.children[0] as HTMLVideoElement;
+            videoElement.srcObject = remoteStream;
+        };
+    };
+
+
+    const connect = async () => {
+        if (!senderId) {
+            console.error("Sender ID is required to connect");
+            return;
+        }
+
+        const socketInstance = new WebSocket(`wss://www.vps.sarvagyapatel.in/ws?clientId=${senderId}`);
+        setSocket(socketInstance);
+
+        socketInstance.onerror = (error) => {
+            console.error("WebSocket error:", error);
+            return;
+        };
+        setAkg("connected");
+
         const video = document.createElement("video");
         video.setAttribute("autoplay", "true");
         video.setAttribute("playsinline", "true");
-        video.setAttribute("muted", "false"); // Allow audio playback
+        video.setAttribute("muted", "false");
 
         if (videoContainerRefReceive.current) {
             videoContainerRefReceive.current.appendChild(video);
         }
 
-        // Collect all incoming media tracks into a single MediaStream for playback
+
+
+        socketInstance.onmessage = async (event) => {
+            const message = JSON.parse(event.data);
+
+            if (message.type === 'createOffer') {
+                try {
+                    await pc.setRemoteDescription(message.sdp);
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer);
+
+                    socketInstance.send(JSON.stringify({
+                        target: receiverId,
+                        owner: 'receiver',
+                        type: 'createAnswer',
+                        sdp: answer
+                    }));
+                } catch (error) {
+                    console.error("Error handling createOffer:", error);
+                }
+            } else if (message.type === 'iceCandidate') {
+                try {
+                    if (message.candidate) {
+                        await pc.addIceCandidate(message.candidate);
+                    }
+                } catch (error) {
+                    console.error("Error adding ICE candidate:", error);
+                }
+            }
+        };
         const remoteStream = new MediaStream();
         pc.ontrack = (event) => {
             remoteStream.addTrack(event.track);
-            video.srcObject = remoteStream;
+            if(videoContainerRefReceive.current===null) return;
+            const videoElement = videoContainerRefReceive.current.children[0] as HTMLVideoElement;
+            videoElement.srcObject = remoteStream;
         };
     };
+
+
+
+    const sendVideo = async (socketGet: WebSocket | null) => {
+        if (!socketGet) {
+            alert("Socket not found");
+            return;
+        }
+
+        pc.onnegotiationneeded = async () => {
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            socketGet?.send(JSON.stringify({
+                target: receiverId,
+                owner: 'sender',
+                type: 'createOffer',
+                sdp: pc.localDescription
+            }));
+        };
+
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                socketGet?.send(JSON.stringify({
+                    target: receiverId,
+                    owner: 'sender',
+                    type: 'iceCandidate',
+                    candidate: event.candidate
+                }));
+            }
+        };
+
+        socketGet.onmessage = async (event) => {
+            const message = JSON.parse(event.data);
+            if (message.type === 'createAnswer') {
+                await pc.setRemoteDescription(message.sdp);
+                receiveVideo(socketGet);
+            }
+        };
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.muted = true;
+            video.play();
+
+            if (videoContainerRefSend.current) {
+                videoContainerRefSend.current.appendChild(video);
+            }
+            stream.getTracks().forEach(track => pc.addTrack(track, stream));
+        });
+    };
+
 
     return (
         <div className="flex flex-wrap gap-36 p-20">
@@ -191,7 +219,10 @@ function TwoWay() {
 
                 <div className="flex">
                     <button
-                        onClick={sendVideo}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            sendVideo(socket)
+                        }}
                         className="w-36 bg-blue-600 border-blue-500 rounded-2xl p-2"
                     >
                         Send Data
@@ -200,15 +231,6 @@ function TwoWay() {
             </div>
             <div className="flex flex-col gap-36 border-black border-2 p-10 rounded-2xl justify-end">
                 <div className="w-full h-fit text-gray-950" ref={videoContainerRefReceive}></div>
-
-                <div className="flex">
-                    <button
-                        onClick={receiveVideo}
-                        className="w-36 bg-blue-600 border-blue-500 rounded-2xl p-2"
-                    >
-                        Receive Data
-                    </button>
-                </div>
             </div>
         </div>
     );
