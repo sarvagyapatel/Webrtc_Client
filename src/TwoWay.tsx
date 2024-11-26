@@ -18,6 +18,18 @@ function TwoWay() {
             }
         ]
     });
+
+    const pcReceive = new RTCPeerConnection({
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            {
+                urls: ["turn:68.183.81.222:3478", "turn:www.vps.sarvagyapatel.in:3478"],
+                username: "user",
+                credential: "Ayushsingh$12"
+            }
+        ]
+    });
+;
 ;
 
     const receiveVideo = async (socketGet: WebSocket | null) => {
@@ -31,9 +43,9 @@ function TwoWay() {
 
             if (message.type === 'createOffer') {
                 try {
-                    await pc.setRemoteDescription(message.sdp);
-                    const answer = await pc.createAnswer();
-                    await pc.setLocalDescription(answer);
+                    await pcReceive.setRemoteDescription(message.sdp);
+                    const answer = await pcReceive.createAnswer();
+                    await pcReceive.setLocalDescription(answer);
 
                     socketGet.send(JSON.stringify({
                         target: receiverId,
@@ -47,7 +59,7 @@ function TwoWay() {
             } else if (message.type === 'iceCandidate') {
                 try {
                     if (message.candidate) {
-                        await pc.addIceCandidate(message.candidate);
+                        await pcReceive.addIceCandidate(message.candidate);
                     }
                 } catch (error) {
                     console.error("Error adding ICE candidate:", error);
@@ -56,7 +68,7 @@ function TwoWay() {
         };
 
         const remoteStream = new MediaStream();
-        pc.ontrack = (event) => {
+        pcReceive.ontrack = (event) => {
             remoteStream.addTrack(event.track);
             if(videoContainerRefReceive.current===null) return;
             const videoElement = videoContainerRefReceive.current.children[0] as HTMLVideoElement;
@@ -96,9 +108,9 @@ function TwoWay() {
 
             if (message.type === 'createOffer') {
                 try {
-                    await pc.setRemoteDescription(message.sdp);
-                    const answer = await pc.createAnswer();
-                    await pc.setLocalDescription(answer);
+                    await pcReceive.setRemoteDescription(message.sdp);
+                    const answer = await pcReceive.createAnswer();
+                    await pcReceive.setLocalDescription(answer);
 
                     socketInstance.send(JSON.stringify({
                         target: receiverId,
@@ -112,7 +124,7 @@ function TwoWay() {
             } else if (message.type === 'iceCandidate') {
                 try {
                     if (message.candidate) {
-                        await pc.addIceCandidate(message.candidate);
+                        await pcReceive.addIceCandidate(message.candidate);
                     }
                 } catch (error) {
                     console.error("Error adding ICE candidate:", error);
@@ -120,7 +132,7 @@ function TwoWay() {
             }
         };
         const remoteStream = new MediaStream();
-        pc.ontrack = (event) => {
+        pcReceive.ontrack = (event) => {
             remoteStream.addTrack(event.track);
             if(videoContainerRefReceive.current===null) return;
             const videoElement = videoContainerRefReceive.current.children[0] as HTMLVideoElement;
