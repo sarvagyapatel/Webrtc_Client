@@ -184,7 +184,7 @@ function TwoWay() {
             video.muted = true;
             video.play();
 
-            if (videoContainerRefSend.current) {
+            if (videoContainerRefSend.current && videoContainerRefSend.current.children.length===0) {
                 videoContainerRefSend.current.appendChild(video);
             }
             stream.getTracks().forEach(track => pc.addTrack(track, stream));
