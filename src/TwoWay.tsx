@@ -83,7 +83,7 @@ function TwoWay() {
             return;
         }
 
-        const socketInstance = new WebSocket(`wss://www.vps.sarvagyapatel.in/ws?clientId=${senderId}&roomId=1`);
+        const socketInstance = new WebSocket(`wss://www.vps.sarvagyapatel.in/ws?username=${senderId}&roomId=1`);
         setSocket(socketInstance);
 
         socketInstance.onerror = (error) => {
